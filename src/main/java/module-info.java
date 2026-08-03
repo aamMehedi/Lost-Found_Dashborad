@@ -1,6 +1,6 @@
 module com.lostandfound {
     requires javafx.controls;
-    requires javafx.graphics;
+    requires transitive javafx.graphics;
     requires javafx.fxml;
     requires java.sql;
 
