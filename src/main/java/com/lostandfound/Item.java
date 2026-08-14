@@ -11,8 +11,10 @@ public class Item {
     private String status;
     private String dateReported;
     private String imagePath;
+    private String ownerEmail; // NEW FIELD
 
-    public Item(int id, String name, String category, String description, String status, String dateReported, String imagePath) {
+    // UPDATED CONSTRUCTOR WITH ownerEmail
+    public Item(int id, String name, String category, String description, String status, String dateReported, String imagePath, String ownerEmail) {
         this.id = id;
         this.name = name;
         this.category = category;
@@ -20,6 +22,7 @@ public class Item {
         this.status = status;
         this.dateReported = dateReported;
         this.imagePath = imagePath;
+        this.ownerEmail = ownerEmail;
     }
 
     public int getId() { return id; }
@@ -29,8 +32,9 @@ public class Item {
     public String getStatus() { return status; }
     public String getDateReported() { return dateReported; }
     public String getImagePath() { return imagePath; }
+    public String getOwnerEmail() { return ownerEmail; } // NEW GETTER
 
-    // --- NEW DUSTY LOGIC ---
+    // --- YOUR DUSTY LOGIC (UNTOUCHED) ---
     
     // Calculates how many days this item has been logged
     public long getDaysInStorage() {
