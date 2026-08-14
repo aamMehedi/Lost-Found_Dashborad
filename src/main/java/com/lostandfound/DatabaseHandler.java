@@ -20,20 +20,29 @@ public class DatabaseHandler {
                 + "description TEXT, "
                 + "status TEXT DEFAULT 'Lost', "
                 + "date_reported TEXT, "
-                + "image_path TEXT"
+                + "image_path TEXT, "
+                + "owner_email TEXT" // NEW COLUMN
                 + ");";
 
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute(createTableSQL);
+            
+            // Auto-migration: Adds the column if the DB file already exists without it
+            try {
+                stmt.execute("ALTER TABLE items ADD COLUMN owner_email TEXT;");
+            } catch (SQLException ignored) {
+                // Column already exists, safe to ignore
+            }
+
             System.out.println("SQLite Database initialized successfully!");
         } catch (SQLException e) {
             System.err.println("Database initialization failed: " + e.getMessage());
         }
     }
 
-    // Save a new record to the database
-    public static boolean insertItem(String name, String category, String description, String status, String dateReported, String imagePath) {
-        String insertSQL = "INSERT INTO items(item_name, category, description, status, date_reported, image_path) VALUES(?,?,?,?,?,?)";
+    // Save a new record to the database (UPDATED WITH ownerEmail)
+    public static boolean insertItem(String name, String category, String description, String status, String dateReported, String imagePath, String ownerEmail) {
+        String insertSQL = "INSERT INTO items(item_name, category, description, status, date_reported, image_path, owner_email) VALUES(?,?,?,?,?,?,?)";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(insertSQL)) {
             pstmt.setString(1, name);
             pstmt.setString(2, category);
@@ -41,6 +50,7 @@ public class DatabaseHandler {
             pstmt.setString(4, status);
             pstmt.setString(5, dateReported);
             pstmt.setString(6, imagePath);
+            pstmt.setString(7, ownerEmail);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -49,7 +59,7 @@ public class DatabaseHandler {
         }
     }
 
-    // Read all records from the database
+    // Read all records from the database (UPDATED WITH owner_email)
     public static List<Item> getAllItems() {
         List<Item> list = new ArrayList<>();
         String querySQL = "SELECT * FROM items ORDER BY id DESC";
@@ -62,7 +72,8 @@ public class DatabaseHandler {
                         rs.getString("description"),
                         rs.getString("status"),
                         rs.getString("date_reported"),
-                        rs.getString("image_path")
+                        rs.getString("image_path"),
+                        rs.getString("owner_email") // NEW FIELD
                 ));
             }
         } catch (SQLException e) {
@@ -91,6 +102,7 @@ public class DatabaseHandler {
         }
         return 0;
     }
+
     // Counts how many items in storage are 30+ days old and unclaimed
     public static int getDustyItemCount() {
         int count = 0;
